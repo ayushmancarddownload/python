@@ -1,0 +1,32 @@
+name: Daily GitLab Bulk Importer
+
+on:
+  schedule:
+    # Yeh cron har 24 ghante me (roz raat 12:00 AM UTC) apne aap chalega
+    - cron: '0 0 * * *'
+  # Aap chahein toh manually "Run workflow" button daba kar bhi turant chala sakte hain
+  workflow_dispatch:
+
+jobs:
+  import-repos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: setup/python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Run Importer Script
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GH_TARGET: "gameinclassroom"
+          GITLAB_NAMESPACE: ${{ secrets.GITLAB_NAMESPACE }}
+          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+          IMPORT_DELAY: "2.0"
+        run: python importer_cloud.py
